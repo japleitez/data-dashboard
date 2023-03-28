@@ -1,0 +1,128 @@
+include:
+    - project:  'datateam/ecdp-infra/pipeline-template/docker'
+      ref: 0.0.3
+      file:
+          - 'container_scanning/hadolint/.hadolint.gitlab-ci.template.yml'
+          - 'tools/.build.gitlab-ci.template.yml'
+          - 'container_scanning/trivy/.trivy.gitlab-ci.template.yml'
+          - 'container_scanning/dockle/.dockle.gitlab-ci.template.yml'
+          - 'container_scanning/grype/.grype.gitlab-ci.template.yml'
+          - 'tools/.deploy_aws.gitlab-ci.template.yml'
+
+
+variables:
+    # For AWS ECR
+    AWS_ECR_REPO_NAME: "data_acquisition_dashboard"
+
+    CONTAINER_TEST_IMAGE: "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG"
+
+    # # Version of template/scripts used
+    # SCRIPTS_TAG: 0.0.1
+    # SCRIPTS_REPO: https://gitlab-ci-token:${CI_JOB_TOKEN}@git.fpfis.eu/datateam/ecdp-infra/pipeline-template/docker-scripts.git
+
+    # # Used docker image for security checks
+    # DOCKER_IMAGE: registry.fpfis.eu/estat/wihp/docker/alpine-docker-java:0-0-1
+    #
+    # # YOU SHOULD PROVIDE THIS VARIABLE
+    # CONTAINER_TEST_IMAGE: "$CI_REGISTRY_IMAGE:$CONTAINER_RELEASE_VERSION-$CI_COMMIT_REF_SLUG"
+    # # $CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG:$CI_COMMIT_SHA this will create as much container images than commits
+    #
+    # # For AWS ECR
+    # AWS_DOCKER_REGISTRY: 651225517062.dkr.ecr.eu-central-1.amazonaws.com
+    # APP_NAME: data_acquisition_dashboard
+    # CONTAINER_RELEASE_VERSION: 0.0.22
+    # CONTAINER_RELEASE_IMAGE: $AWS_DOCKER_REGISTRY/$APP_NAME:$CONTAINER_RELEASE_VERSION
+
+    #eUI VARS
+    CHROME_BIN: /usr/bin/chromium-browser
+
+image: $DOCKER_IMAGE
+
+stages:
+    - install
+    - test
+    - build
+    - docker_linting
+    - docker_build
+    - docker_scanning
+    - docker_deploy
+
+.dependencies_cache:
+    cache:
+        key:
+            files:
+                - yarn.lock
+        paths:
+            - node_modules
+        policy: pull
+
+hadolint_container_scanning:
+    needs: []
+
+
+
+# Projects jobs definition
+install_dependencies:
+    stage: install
+    image: registry.fpfis.eu/estat/wihp/docker/alpine-node:0-0-4
+    script:
+        - yarn install
+        - yarn postinstall
+        - yarn tslint -c tslint.json -p src/tsconfig.app.json
+        - yarn stylelint **/*.scss
+    extends: .dependencies_cache
+    cache:
+        policy: pull-push
+    only:
+        changes:
+            - yarn.lock
+
+test:
+    stage: build
+    image: registry.fpfis.eu/estat/wihp/docker/alpine-node:0-0-4
+    script:
+        - yarn ng test app --code-coverage --watch=false
+        - yarn global add coverage-average
+        - coverage-average coverage/coverage/text-summary.txt
+    coverage: '/Coverage average is \d+.\d+%/'
+    artifacts:
+        name: "tests-and-coverage"
+        reports:
+            junit:
+                - coverage/junit/junit-test-results.xml
+            cobertura:
+                - coverage/coverage/cobertura-coverage.xml
+    dependencies: []
+    extends: .dependencies_cache
+
+
+# Projects jobs definition
+build:
+    stage: build
+    extends: .dependencies_cache
+    image: registry.fpfis.eu/estat/wihp/docker/alpine-node:0-0-4
+    script:
+        - yarn build-prod-skip-test
+    artifacts:
+        name: "data-acquisition-dashboard"
+        paths:
+            - dist/
+
+# deploy_on_aws:
+#     stage: docker_deploy
+#
+#     before_script:
+#         # - docker info
+#         - apk add --no-cache aws-cli
+#
+#     script:
+#         - docker info
+#         - aws ecr get-login-password | docker login --username AWS --password-stdin $AWS_DOCKER_REGISTRY
+#         # If tag is mutable and want to update to the latest
+#         - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+#         - docker tag $CONTAINER_TEST_IMAGE $CONTAINER_RELEASE_IMAGE
+#         - docker push $CONTAINER_RELEASE_IMAGE
+#     only:
+#         refs:
+#             - master
+

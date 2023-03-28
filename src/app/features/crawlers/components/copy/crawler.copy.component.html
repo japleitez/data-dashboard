@@ -1,0 +1,35 @@
+<eui-page>
+
+    <eui-page-header label="Copy Crawlers"></eui-page-header>
+
+    <eui-page-content>
+        <div class="page-title eui-u-font-size-2xl">
+            Copy crawler from : {{currentCrawler?.name}}
+        </div>
+        <ux-panel label="Crawler">
+            <div class="row mb-5">
+                <div class="col-md-10">
+                    <form [formGroup]="form" class="form--large-labels p-2">
+                        <ux-form-group label="Name" [isVertical]="true" [isRequired]="true">
+                            <ux-form-control formControlName="name" id="crawler_name"></ux-form-control>
+                            <ux-control-feedback *ngIf="form.controls['name'].invalid && form.controls['name'].touched && form.controls['name'].hasError('forbiddenName')" typeClass="danger">
+                                The name is required and should contain only [a-zA-Z0-9_-]
+                            </ux-control-feedback>
+                            <ux-control-feedback *ngIf="form.controls['name'].invalid && form.controls['name'].touched && form.controls['name'].hasError('maxlength')" typeClass="danger">
+                                The name should be maximum 100 characters long
+                            </ux-control-feedback>
+                        </ux-form-group>
+                    </form>
+                </div>
+            </div>
+        </ux-panel>
+    </eui-page-content>
+
+    <eui-page-footer>
+        <div class="footer-action-bar">
+            <button class="eui-u-mr-s" id="cancel_btn" euiButton euiSecondary (click)="onCancel($event)">Cancel</button>
+            <button class="eui-u-mr-s" id="copy_btn"   euiButton euiPrimary (click)="onSave($event)" [euiDisabled]="!form.valid">Copy</button>
+        </div>
+    </eui-page-footer>
+
+</eui-page>

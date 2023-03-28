@@ -1,0 +1,18 @@
+<div class="eui-table__sticky-container" style="height: 400px; overflow-y: auto;" #scrollableContainerRef>
+    <table euiTable euiTableResponsive hasStickyHeader [rows]="crawlerFields" [scrollableContainerRef]="scrollableContainerRef">
+        <ng-template euiTemplate="header">
+            <tr>
+                <th>Crawler Field</th>
+                <th>Validation</th>
+                <th>Description</th>
+            </tr>
+        </ng-template>
+        <ng-template let-field euiTemplate="body">
+            <tr>
+                <td><div [innerHTML]="field.key" ></div></td>
+                <td><div [innerHTML]="field.validation" ></div></td>
+                <td><div [innerHTML]="field.description" ></div></td>
+            </tr>
+        </ng-template>
+    </table>
+</div>

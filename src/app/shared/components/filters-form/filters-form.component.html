@@ -1,0 +1,54 @@
+<eui-page>
+    <eui-page-content>
+
+        <div class="page-title eui-u-font-size-xl">
+            Details for filter:  <strong> {{ defaultFilterName | translate }} </strong>  <!-- ( {{ translationKeyFilter | translate }} ) -->
+        </div>
+
+        <form [formGroup]='formUrlFilterConfig' >
+            <fieldset>
+                <eui-card *ngIf='defaultFilterHelp' euiCollapsible euiCollapsed id="filter-help">
+                    <eui-card-header hasHeaderClickToggle="true">
+                        <eui-card-header-title>
+                            Help
+                        </eui-card-header-title>
+                    </eui-card-header>
+                    <eui-card-content>
+                        {{defaultFilterHelp}}
+                    </eui-card-content>
+                </eui-card>
+
+                <ux-panel label="Filter parameters">
+
+                    <div *ngFor='let param of jsonFormUrlData?.parameters; let paramIndex=index' class="row mt-3">
+                        <div class="col-md-8">
+                            <app-filter-element-form [param]='param'
+                                                         [paramObjId] = 'jsonFormUrlData.id'
+                                                         [values] = 'getValues(param.id)'
+                                                         [(formUrlFilterConfig)] = 'formUrlFilterConfig' >
+                            </app-filter-element-form>
+                        </div>
+                        <div class="col-md-4">
+                            <eui-card *ngIf='param.help?.default' euiCollapsible euiCollapsed id="filter-param-help_{{param.id}}">
+                                <eui-card-header hasHeaderClickToggle="true">
+                                    <eui-card-header-title>
+                                        Help
+                                    </eui-card-header-title>
+                                </eui-card-header>
+                                <eui-card-content>
+                                    {{param.help?.default}}
+                                </eui-card-content>
+                            </eui-card>
+                        </div>
+
+                    </div>
+                </ux-panel>
+            </fieldset>
+        </form>
+
+<!--        <pre>URLFilter Form JSON :  {{ formUrlFilterConfig?.value | json }}</pre>-->
+<!--        <pre><b>URLFilter Form is VALID :  {{ formUrlFilterConfig?.valid}}</b></pre>-->
+
+    </eui-page-content>
+
+</eui-page>

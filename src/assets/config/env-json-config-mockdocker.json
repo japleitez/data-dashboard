@@ -1,0 +1,65 @@
+{
+    "global": {
+        "appTitle": "CSDR-app",
+        "i18n": {
+            "i18nService": {
+                "defaultLanguage": "en",
+                "languages": ["en", "fr"]
+            },
+            "i18nLoader": {
+                "i18nFolders": ["i18n-eui", "i18n", "i18n-ecl"]
+            }
+        },
+        "user": {
+            "defaultUserPreferences": {
+                "dashboard": { },
+                "lang": "en"
+            }
+        },
+        "environment": "local",
+        "member": "web_app",
+        "stsEnabled": true,
+        "isMock": true,
+        "sts": {
+            "issuer": "http://keycloak:9080/auth/realms/jhipster",
+            "loginUrl": "http://keycloak:9080/auth/realms/jhipster/protocol/openid-connect/auth",
+            "logoutUrl": "http://keycloak:9080/auth/realms/jhipster/protocol/openid-connect/logout",
+            "authorizationEndpoint": "http://keycloak:9080/auth/realms/jhipster/protocol/openid-connect/auth",
+            "tokenEndpoint": "http://keycloak:9080/auth/realms/jhipster/protocol/openid-connect/token",
+            "userinfoEndpoint": "http://keycloak:9080/auth/realms/jhipster/protocol/openid-connect/userinfo",
+            "redirectUri": "http://host.docker.internal:4200",
+            "clientId": "web_app",
+            "responseType": "code",
+            "scope": "openid profile email",
+            "showDebugInformation": true,
+            "strictDiscoveryDocumentValidation": false,
+            "useSilentRefresh" : false,
+            "requireHttps" : false
+        }
+    },
+    "openIdConnect": {
+        "enabled": false
+    },
+    "modules": {
+        "sources": {
+            "api": {
+                "base": "http://host.docker.internal:3000/sources"
+            }
+        },
+        "acquisitions": {
+            "api": {
+                "base": "http://host.docker.internal:3000/acquisitions"
+            }
+        },
+        "crawlers": {
+            "api": {
+                "base": "http://host.docker.internal:3000/crawlers"
+            }
+        },
+        "playground": {
+            "api": {
+                "base": "http://host.docker.internal:3000/"
+            }
+        }
+    }
+}

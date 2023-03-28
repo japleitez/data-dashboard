@@ -1,0 +1,223 @@
+<form [formGroup]='formUrlFilterConfig'>
+    <fieldset>
+            <ux-form-group [isVertical]="true" *ngIf='["string","text"].includes(param?.type.type)' [isRequired]=param.type.required
+                           label='{{param.name.default}}'>
+                <ux-form-control [isTextarea]='true'
+                                 [rows]='1'
+                                 [formControlName]='param.id'
+                                 id='id_{{ param.id }}_{{paramObjId}}_{{objIndex}}'>
+                </ux-form-control>
+                <ux-control-feedback
+                    *ngIf='this.formUrlFilterConfig.controls[param.id]?.invalid && this.formUrlFilterConfig.controls[param.id]?.touched'
+                    typeClass='danger'>
+                    This field is required = {{param.type.required}} and length should be between {{param.type.minLength}}
+                    and {{param.type.maxLength}} inclusive. pattern {{param.type.pattern}}
+                </ux-control-feedback>
+            </ux-form-group>
+
+            <ux-form-group [isVertical]="true" *ngIf='param?.type.type === "integer"' [isRequired]=param.type.required
+                           label='{{ param.name.default }}'>
+                <ux-form-control [isNumber]='true'
+                                 [formControlName]='param.id'
+                                 id='id_{{ param.id }}_{{paramObjId}}_{{objIndex}}'>
+                </ux-form-control>
+                <ux-control-feedback
+                    *ngIf='this.formUrlFilterConfig.controls[param.id]?.invalid && this.formUrlFilterConfig.controls[param.id].touched'
+                    typeClass='danger'>
+                    This field is required = {{param.type.required}} and should be between {{param.type.minimum}}
+                    and {{param.type.maximum}} inclusive
+                </ux-control-feedback>
+            </ux-form-group>
+
+            <ux-form-group [isVertical]='true' *ngIf='param?.type.type === "number"' [isRequired]=param.type.required
+                           label='{{ param.name.default }}'>
+                <ux-form-control [isNumber]='true'
+                                 [cleaveOptions]='{numeralDecimalMark: "."}'
+                                 [formControlName]='param.id'
+                                 id='id_{{ param.id }}_{{paramObjId}}_{{objIndex}}'>
+                </ux-form-control>
+                <ux-control-feedback
+                    *ngIf='this.formUrlFilterConfig.controls[param.id].invalid && this.formUrlFilterConfig.controls[param.id].touched'
+                    typeClass='danger'>
+                    This field is required = {{param.type.required}} and should be between {{param.type.minimum}}
+                    and {{param.type.maximum}} inclusive
+                </ux-control-feedback>
+            </ux-form-group>
+
+            <ux-form-group [isVertical]='true' *ngIf='param?.type.type === "boolean"' [isRequired]=param.type.required
+                           label='{{ param.name.default }}'>
+                <ux-form-control [isCheckbox]='true'
+                                 [formControlName]='param.id'
+                                 id='id_{{ param.id }}_{{paramObjId}}_{{objIndex}}'>
+                </ux-form-control>
+                <ux-control-feedback
+                    *ngIf='this.formUrlFilterConfig.controls[param.id].invalid && this.formUrlFilterConfig.controls[param.id].touched'
+                    typeClass='danger'>
+                    This field is required = {{param.type.required}}
+                </ux-control-feedback>
+            </ux-form-group>
+
+            <ux-form-group *ngIf='param?.type.type === "object"' [isVertical]='true' label='{{ param.name.default }}'>
+
+                    <div *ngFor='let paramObj of param?.type.parameters; let paramObjIndex=index' class="row mt-3">
+                        <div class="col-md-8">
+                            <app-filter-element-form
+                                [param]='paramObj'
+                                [objectId] = 'param.id'
+                                [paramObjId] = 'paramObj.id'
+                                [values] = 'getValues(paramObj.id)'
+                                [formUrlFilterConfig] = 'getFormByID(param.id)'>
+                            </app-filter-element-form>
+                        </div>
+                        <div class="col-md-4">
+                            <eui-card *ngIf='paramObj.help?.default' euiCollapsible euiCollapsed id="filter-param-obj-help_{{paramObj.id}}">
+                                <eui-card-header hasHeaderClickToggle="true">
+                                    <eui-card-header-title> Help </eui-card-header-title>
+                                </eui-card-header>
+                                <eui-card-content> {{paramObj.help?.default}} </eui-card-content>
+                            </eui-card>
+                        </div>
+                    </div>
+
+            </ux-form-group>
+
+            <ux-panel label='{{ param.name.default }}' *ngIf='param?.type.type === "array"' [isFlat]='true'>
+                <div formArrayName='{{param.id}}'>
+                    <div *ngFor='let item of getFormArrayControls(param.id); let i=index'>
+                        <ux-form-group [isVertical]='true' *ngIf='["string","text"].includes(param.type.arrayType)'
+                                       [isRequired]=param.type.required label='# {{ i + 1 }}'>
+                            <ux-form-control [isTextarea]='true'
+                                             [rows]='1'
+                                             [formControlName]='i'
+                                             id='id_{{ param.id }}_{{ i }}_id_{{ objIndex }}_{{paramObjId}}'>
+                            </ux-form-control>
+                            <ux-control-feedback
+                                *ngIf='getFormArrayControls(param.id)[i].invalid && getFormArrayControls(param.id)[i].touched'
+                                typeClass='danger'>
+                                This field is required = {{param.type.required}} and length should be between {{param.type.minLength}}
+                                and {{param.type.maxLength}} inclusive. pattern {{param.type.pattern}}
+                            </ux-control-feedback>
+                            <button euiButton euiRounded euiIconButton euiSizeL euiBasicButton euiPrimary
+                                    euiDisabled='{{isMinNumberOfItems(param)}}'
+                                    (click)='removeFromFormArray(param, i)'
+                                    euiTooltip='Remove value'
+                                    title ='delete_item_{{param.id}}'
+                                    id='id_remove_{{ param.id }}_{{ i }}_id_{{ objIndex }}_{{paramObjId}}'>
+                                <span euiIcon iconClass="eui-icon eui-icon-delete-o"></span>
+                            </button>
+                        </ux-form-group>
+
+                        <ux-form-group [isVertical]='true' *ngIf='param.type.arrayType === "integer"' [isRequired]=param.type.required
+                                       label='# {{ i + 1 }}'>
+                            <ux-form-control [isNumber]='true'
+                                             [formControlName]='i'
+                                             id='id_{{ param.id }}_{{ i }}_id_{{ objIndex }}_{{paramObjId}}'>
+                            </ux-form-control>
+                            <ux-control-feedback
+                                *ngIf='getFormArrayControls(param.id)[i].invalid && getFormArrayControls(param.id)[i].touched'
+                                typeClass='danger'>
+                                This field is required = {{param.type.required}} and should be between {{param.type.minimum}}
+                                and {{param.type.maximum}} inclusive
+                            </ux-control-feedback>
+                            <button euiButton euiRounded euiIconButton euiSizeL euiBasicButton euiPrimary
+                                    euiDisabled='{{isMinNumberOfItems(param)}}'
+                                    (click)='removeFromFormArray(param, i)'
+                                    euiTooltip='Remove value'
+                                    title ='delete_item_{{param.id}}'
+                                    id='id_remove_{{ param.id }}_{{ i }}_id_{{ objIndex }}_{{paramObjId}}'>
+                                <span euiIcon iconClass="eui-icon eui-icon-delete-o"></span>
+                            </button>
+                        </ux-form-group>
+
+                        <ux-form-group [isVertical]='true' *ngIf='param.type.arrayType === "number"' [isRequired]=param.type.required label='# {{ i + 1 }}'>
+                            <ux-form-control [isNumber]='true'
+                                             [cleaveOptions]='{numeralDecimalMark: "."}'
+                                             [formControlName]='i'
+                                             id='id_{{ param.id }}_{{ i }}_id_{{ objIndex }}_{{paramObjId}}'>
+                            </ux-form-control>
+                            <ux-control-feedback
+                                *ngIf='getFormArrayControls(param.id)[i].invalid && getFormArrayControls(param.id)[i].touched'
+                                typeClass='danger'>
+                                This field is required = {{param.type.required}} and should be between {{param.type.minimum}}
+                                and {{param.type.maximum}} inclusive
+                            </ux-control-feedback>
+                            <button euiButton euiRounded euiIconButton euiSizeL euiBasicButton euiPrimary
+                                    euiDisabled='{{isMinNumberOfItems(param)}}'
+                                    (click)='removeFromFormArray(param, i)'
+                                    euiTooltip='Remove value'
+                                    title ='delete_item_{{param.id}}'
+                                    id='id_remove_{{ param.id }}_{{ i }}_id_{{ objIndex }}_{{paramObjId}}'>
+                                <span euiIcon iconClass="eui-icon eui-icon-delete-o"></span>
+                            </button>
+                        </ux-form-group>
+
+                        <ux-form-group [isVertical]='true' *ngIf='param.type.arrayType === "boolean"' [isRequired]=param.type.required label='# {{ i + 1 }}'>
+                            <ux-form-control [isCheckbox]="true"
+                                             [formControlName]='i'
+                                             id='id_{{ param.id }}_{{ i }}_id_{{ objIndex }}_{{paramObjId}}'>
+                            </ux-form-control>
+                            <ux-control-feedback
+                                *ngIf='getFormArrayControls(param.id)[i].invalid && getFormArrayControls(param.id)[i].touched'
+                                typeClass='danger'>
+                                This field is required = {{param.type.required}}
+                            </ux-control-feedback>
+                            <button euiButton euiRounded euiIconButton euiSizeL euiBasicButton euiPrimary
+                                    euiDisabled='{{isMinNumberOfItems(param)}}'
+                                    (click)='removeFromFormArray(param, i)'
+                                    euiTooltip='Remove value'
+                                    title ='delete_item_{{param.id}}'
+                                    id='id_remove_{{ param.id }}_{{ i }}_id_{{ objIndex }}_{{paramObjId}}'>
+                                <span euiIcon iconClass="eui-icon eui-icon-delete-o"></span>
+                            </button>
+                        </ux-form-group>
+
+                        <eui-card *ngIf='param.type.arrayType === "object"' class="eui-t-card-compact" id='{{param.id}}_{{i}}'>
+                            <eui-card-header hasHeaderClickToggle="true">
+                                <eui-card-header-title> ## {{ i + 1 }} </eui-card-header-title>
+                            </eui-card-header>
+
+                            <eui-card-content>
+                                <div *ngFor='let paramObjArray of param.type?.parameters; let paramObjIndex=index' class="row mt-3">
+                                    <div class="col-md-8">
+                                        <app-filter-element-form
+                                            [param]='paramObjArray'
+                                            [paramObjId] = 'paramObjArray.id'
+                                            [objIndex] = 'i'
+                                            [objectId] = 'param.id'
+                                            [values] = 'getValuesArray(paramObjArray.id, i)'
+                                            [formUrlFilterConfig] = 'getFormByIDandIndex(param.id, i)'>
+                                        </app-filter-element-form>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <eui-card *ngIf='paramObjArray.help?.default' class="eui-t-card-compact" euiCollapsible euiCollapsed id="filter-param-obj-help_{{paramObjArray.id}}">
+                                            <eui-card-header hasHeaderClickToggle="true">
+                                                <eui-card-header-title> Help </eui-card-header-title>
+                                            </eui-card-header>
+                                            <eui-card-content> {{paramObjArray.help?.default}} </eui-card-content>
+                                        </eui-card>
+                                    </div>
+                                </div>
+                                <button euiButton euiRounded euiIconButton euiSizeL euiBasicButton euiPrimary
+                                        euiDisabled='{{isMinNumberOfItems(param)}}'
+                                        (click)='removeFromFormArray(param, i)'
+                                        euiTooltip='Remove value'
+                                        title ='delete_item_{{param.id}}'
+                                        id='id_remove_{{ param.id }}_{{ i }}_id_{{ objIndex }}_{{paramObjId}}'>
+                                    <span euiIcon iconClass="eui-icon eui-icon-delete-o"></span>
+                                </button>
+                            </eui-card-content>
+                        </eui-card>
+
+                    </div>
+                    <div class="row mt-2"></div>
+                    <button euiButton euiOutline euiPrimary euiSizeS (click)='addToFormArray(param)'
+                            euiDisabled='{{isMaxNumberOfItems(param)}}' id='add_item_{{param.id}}'>
+                        Add
+                    </button>
+                </div>
+            </ux-panel>
+
+<!--        <pre>URLFilter Element JSON :  {{ formUrlFilterConfig?.value | json }}</pre>-->
+
+    </fieldset>
+</form>

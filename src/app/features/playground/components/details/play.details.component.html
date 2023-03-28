@@ -1,0 +1,184 @@
+<eui-page>
+
+    <eui-page-header label="Playground {{filterName}} Filter " subLabel='id: {{ currentId }}'></eui-page-header>
+
+    <eui-page-content>
+
+        <app-filters-form [jsonFormUrlData]="filtersFormUrlData"
+                              [formUrlFilterConfig] = 'formUrlFilterFormGroup' >
+        </app-filters-form>
+
+        <div class="row mt-5"></div>
+
+         <ux-form-group label="Selenium Protocol" [isVertical]="true" [isRequired]="true" *ngIf='currentType == parseFilter'>
+            <input type="radio" name="seleniumProtocol" euiInputRadio value="STATIC" label="STATIC" [(ngModel)]='seleniumProtocol' id="selenium_protocol_static" checked />
+            <input type="radio" name="seleniumProtocol" euiInputRadio value="DYNAMIC" label="DYNAMIC"  [(ngModel)]='seleniumProtocol' id="selenium_protocol_dynamic" />
+            <div class="row mt-5"></div>
+        </ux-form-group>
+
+        <eui-card euiCollapsible euiCollapsed id="metadata_card">
+            <eui-card-header>
+                <eui-card-header-title>
+                    <div class="eui-u-font-size-l" id="metadata_card_header">Metadata</div>
+                </eui-card-header-title>
+            </eui-card-header>
+            <eui-card-content>
+                <ng-template ngFor
+                             [ngForOf]="metadataFormDataList"
+                             let-metadata
+                             let-i="index">
+                    <ux-panel label="Entry Set: {{ i + 1 }}" [isExpandable]="true" [isExpanded]="true" id="entry_set_{{ i }}">
+                        <app-metadata-form [metadata]="metadata" [singleComponent]="false" (registerFormData)='registerMetadataEntrySet($event)'></app-metadata-form>
+                        <ux-layout-horizontal *ngIf="hasNotReachedMetadataMinSize()">
+                            <uxLayoutHorizontalRight>
+                                <button euiButton euiOutline euiPrimary (click)='removeMetadataEntrySet(metadata)' id='remove_metadata_entry_set_{{metadata.id}}'>Remove Entry Set</button>
+                            </uxLayoutHorizontalRight>
+                        </ux-layout-horizontal>
+                    </ux-panel>
+                </ng-template>
+                <ux-layout-horizontal>
+                    <uxLayoutHorizontalLeft>
+                        <button euiButton euiOutline euiPrimary (click)='addMetadataEntrySet()' id='add_metadata_entry_set'>Add Entry Set</button>
+                    </uxLayoutHorizontalLeft>
+                </ux-layout-horizontal>
+            </eui-card-content>
+        </eui-card>
+        <div class="row mt-5"></div>
+
+        <div *ngIf="currentType === urlFilter; else oneUrlToTest">
+            <ux-panel label='URLs to test' >
+            <textarea euiTextArea rows='5' style='width: 100%'
+                      required
+                      [(ngModel)]="testUrlList"
+                      id='urls_to_test_id'></textarea>
+            </ux-panel>
+        </div>
+        <ng-template #oneUrlToTest>
+            <ux-panel label='URL to test' >
+            <input euiInputText id="url_to_test_id" required [(ngModel)]="testUrlList" />
+            </ux-panel>
+        </ng-template>
+
+        <div class="row mt-5"></div>
+
+        <eui-card euiNoContentPadding id='error_report_table' id='error_filter_validation_list' *ngIf='isErrorFilterReportVisible'>
+            <eui-card-header>
+                <eui-card-header-title>Url Filter test report has <eui-badge euiPrimary>{{ errorList.length }}</eui-badge> records</eui-card-header-title>
+            </eui-card-header>
+            <eui-card-content>
+                <div class="eui-table__scrollable-wrapper">
+                    <table euiTable euiTableResponsive [rows]="errorList" [paginator]="urlTestPaginator">
+                        <ng-template euiTemplate="header">
+                            <tr>
+                                <th>Url</th>
+                                <th>Errors</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template let-source euiTemplate="body">
+                            <tr>
+                                <td data-col-label="Url">{{ source.url }}</td>
+                                <td data-col-label="Errors">{{ rendererValidationResult(source.result) }}</td>
+                            </tr>
+                        </ng-template>
+                    </table>
+                </div>
+                <eui-table-paginator #urlTestPaginator></eui-table-paginator>
+                <ux-panel label='' [isFlat]='true' [isLargeHeader]='true'></ux-panel>
+            </eui-card-content>
+        </eui-card>
+
+        <eui-card euiNoContentPadding id='error_report_table' id='error_filter_validation_list' *ngIf='isErrorParseFilterReportVisible'>
+            <eui-card-header>
+                <eui-card-header-title>Parse Filter test report has <eui-badge euiPrimary>{{ testResultParseList.length }}</eui-badge> records. Test URL: {{parseTestUrl}}</eui-card-header-title>
+            </eui-card-header>
+            <eui-card-content>
+                <div class="eui-table__scrollable-wrapper">
+                    <table euiTable euiTableResponsive [rows]="testResultParseList" [paginator]="parseTestPaginator">
+                        <ng-template euiTemplate="header">
+                            <tr>
+                                <th>name</th>
+                                <th>Values</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template let-source euiTemplate="body">
+                            <tr>
+                                <td data-col-label="Name">{{ source.prop }}</td>
+                                <td data-col-label="Values">
+
+                                    <div *ngFor='let valItem of source.result; let valItemIndex=index' >
+                                        <eui-chip euiSecondary euiOutline euiSizeS> {{ valItem }} </eui-chip>
+                                    </div>
+
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </table>
+                </div>
+                <eui-table-paginator #parseTestPaginator></eui-table-paginator>
+                <ux-panel label='' [isFlat]='true' [isLargeHeader]='true'></ux-panel>
+            </eui-card-content>
+        </eui-card>
+
+        <eui-card euiNoContentPadding id='error_report_table' id='error_filter_validation_list' *ngIf='isErrorNavigationFilterReportVisible'>
+            <eui-card-header>
+                <eui-card-header-title>Navigation Filter test report has <eui-badge euiPrimary>
+                    {{ testResultNavigationList?.length || 0 }}
+                </eui-badge> records. Test URL: {{ navigationTestUrl }}</eui-card-header-title>
+            </eui-card-header>
+            <eui-card-content>
+                <div class="eui-table__scrollable-wrapper">
+                    <table euiTable euiTableResponsive [rows]="testResultNavigationList" [paginator]="navigationTestPaginator">
+                        <ng-template euiTemplate="header">
+                            <tr>
+                                <th *ngFor="let header of testResultNavigationHeaders">{{ header | titlecase }}</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template let-row euiTemplate="body">
+                            <tr>
+                                <td data-col-label="value"
+                                    *ngFor="let header of testResultNavigationHeaders"
+                                    [ngSwitch]="header">
+                                    <ng-container *ngSwitchCase="'highlight'">
+                                        {{ formatNavigationFilterValue(row[header]) }}
+                                    </ng-container>
+                                    <ng-container *ngSwitchCase="'screenshotBase64'">
+                                        <button
+                                            *ngIf="row[header]"
+                                            (click)="row.opened = !row.opened"
+                                            euiButton euiOutline class="eui-u-mr-s eui-u-mb-s" euiSecondary>
+                                            {{row.opened ? 'Close Screenshot' : 'Display Screenshot'}}
+                                        </button>
+                                    </ng-container>
+                                    <ng-container *ngSwitchDefault>{{row[header]}}</ng-container>
+
+                                </td>
+                            </tr>
+                            <tr euiTableExpandableRow *ngIf="row.opened">
+                                <td [attr.colspan]="testResultNavigationHeaders.length" class="p-3">
+                                    <div class="text-center">
+                                        <img alt="screenshot" [src]="sanitizeImage(row['screenshotBase64'])"/>
+                                    </div>
+                                </td>
+                            </tr>
+                        </ng-template>
+                    </table>
+                </div>
+                <eui-table-paginator #navigationTestPaginator></eui-table-paginator>
+                <ux-panel label='' [isFlat]='true' [isLargeHeader]='true'></ux-panel>
+            </eui-card-content>
+        </eui-card>
+
+        <!--        <pre>Playground Form JSON :  {{ formUrlFilterFormGroup.value | json }}</pre>-->
+<!--        <pre><b>Playground Form is VALID :  {{formUrlFilterFormGroup.valid}}</b></pre>-->
+
+        <div class="row mt-5"></div>
+    </eui-page-content>
+
+    <eui-page-footer>
+        <div class="footer-action-bar">
+            <button class="eui-u-mr-s" id="cancel_btn" euiButton euiSecondary (click)="onCancel($event)">Cancel</button>
+            <button class="eui-u-mr-s" id="play_btn"   euiButton euiPrimary (click)="submitFiltersToTest()" [euiDisabled]=!isValidFormForTest()>Test Filter</button>
+        </div>
+    </eui-page-footer>
+
+</eui-page>

@@ -1,0 +1,58 @@
+<eui-page>
+    <eui-page-header label="Sources" ></eui-page-header>
+
+    <eui-page-content >
+
+        <ux-panel label="Sources list" [hasNoContentPadding]="true" badgeLabel="{{asyncDataSourceLength}}" labelInfos="result(s) found">
+
+            <uxPanelHeaderRightContent>
+                <eui-table-filter #filter></eui-table-filter>
+
+                <ux-button-group [hasPairedIcon]="true" styleClass="ml-3" (clicked)="onCreateSource($event)" id="create_source">
+                    <ux-button-group-item label="Create a source"></ux-button-group-item>
+                    <ux-button-group-item iconClass="ux-icon ux-icon-plus"></ux-button-group-item>
+                </ux-button-group>
+
+                <ux-button-group [hasPairedIcon]="true" styleClass="ml-3" (clicked)="onImport($event)" id="import_file">
+                    <ux-button-group-item label="Import file"></ux-button-group-item>
+                    <ux-button-group-item iconClass="ux-icon ux-icon-plus"></ux-button-group-item>
+                </ux-button-group>
+
+            </uxPanelHeaderRightContent>
+
+
+            <table euiTable euiTableResponsive asyncTable [loading]="loading" [rows]="asyncDataSource" >
+                <ng-template euiTemplate="header">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Url</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template let-source euiTemplate="body">
+                    <tr>
+                        <td>{{ source.id }}</td>
+                        <td>{{ source.name }}</td>
+                        <td>{{ source.url }}</td>
+                        <td>
+                            <!-- <button euiButton euiPrimary euiSizeS class="ml-2" (click)="onEditUser(source)">Edit</button>
+                            <button euiButton euiDanger euiSizeS class="ml-2" (click)="onDeleteUser(source)">Delete</button> -->
+                            <button euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiPrimary (click)="onEditSource(source)" [attr.id]="'edit_button_' + source.id"><span euiIcon iconClass="eui-icon eui-icon-create"></span></button>
+                            <button euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiDanger (click)="onDeleteSource(source)"><span euiIcon iconClass="eui-icon eui-icon-delete-o"></span></button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </table>
+
+            <eui-table-paginator [page]="page" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" [length]="asyncDataSourceLength" (pageChange)="pageChange($event)"></eui-table-paginator>
+
+        </ux-panel>
+    </eui-page-content>
+</eui-page>
+
+<ux-message-box *ngIf="selectedSource" id="delete-source-confirm" titleLabel="Confirm source delete"
+                (clicked)="onDeleteSourceConfirmResponse($event)">
+    <p>Are you sure you want to delete </p>
+    <p><strong>{{selectedSource.name}}</strong>?</p>
+</ux-message-box>

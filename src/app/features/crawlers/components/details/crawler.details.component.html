@@ -1,0 +1,482 @@
+`<eui-page>
+    <eui-page-content>
+
+        <div class="page-title eui-u-font-size-2xl">
+            <ng-template [ngIf]="!currentCrawler">
+                Create a new crawler
+            </ng-template>
+            <ng-template [ngIf]="currentCrawler">
+                Crawler details for : {{currentCrawler.name}}
+                <button euiButton euiOutline euiPrimary (click)="copyCrawler(currentCrawler)" id="copy_crawler">Copy</button>
+                &nbsp;
+                <button euiButton euiOutline euiPrimary (click)="openHelp()" id="open_help">Help</button>
+            </ng-template>
+        </div>
+
+        <ux-panel label="Crawler">
+            <div class="row mb-5">
+                <div class="col-md-10">
+                    <form [formGroup]="form" class="form--large-labels p-2">
+
+                        <ux-form-group label="Name" [isVertical]="true" [isRequired]="true">
+                            <ux-form-control formControlName="name" id="crawler_name"></ux-form-control>
+                            <ux-control-feedback *ngIf="form.controls['name'].invalid && form.controls['name'].touched && form.controls['name'].hasError('forbiddenName')" typeClass="danger">
+                                The name is required and should contain only [a-zA-Z0-9_-]
+                            </ux-control-feedback>
+                            <ux-control-feedback *ngIf="form.controls['name'].invalid && form.controls['name'].touched && form.controls['name'].hasError('maxlength')" typeClass="danger">
+                                The name should be maximum 100 characters long
+                            </ux-control-feedback>
+                        </ux-form-group>
+
+                        <eui-card is="sources_card" euiNoContentPadding *ngIf="isExistingCrawler()">
+                            <eui-card-content>
+                                <div class="eui-table__scrollable-wrapper">
+                                    <table id="sources_table" euiTable euiTableResponsive asyncTable [loading]="asyncSourcesLoading" [rows]="asyncSources" >
+                                        <ng-template euiTemplate="header">
+                                            <tr>
+                                                <th>Name</th>
+                                                <th>Url</th>
+                                            </tr>
+                                        </ng-template>
+                                        <ng-template let-source euiTemplate="body">
+                                            <tr>
+                                                <td>{{ source.name }}</td>
+                                                <td>{{ source.url }}</td>
+                                            </tr>
+                                        </ng-template>
+                                    </table>
+                                </div>
+                                <eui-table-paginator
+                                    [page]="page"
+                                    [pageSize]="pageSize"
+                                    [pageSizeOptions]="pageSizeOptions"
+                                    [length]="asyncSourcesLength"
+                                    (pageChange)="pageChange($event)">
+                                </eui-table-paginator>
+                            </eui-card-content>
+                            <eui-card-footer>
+                                <eui-card-footer-action-buttons class="flex-container justify-content-end">
+                                    <button euiButton euiOutline euiPrimary (click)="configureSources()" id="configure_sources">Configure</button>
+                                </eui-card-footer-action-buttons>
+                            </eui-card-footer>
+                        </eui-card>
+                        <div class="row mt-5"></div>
+                        <ux-form-group label="Dynamic (Selenium)" [isVertical]="true"  [isRequired]="true" validationErrorMessage="This field is required">
+                            <ux-form-control [isCheckbox]="true"  formControlName="dynamic" id="dynamic" ></ux-form-control>
+                        </ux-form-group>
+                        <ux-panel label="Dynamic Configuration" *ngIf="isDynamicEnabled()">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div formGroupName="dynamicConfig">
+                                        <ux-form-group label="Language" [isVertical]="true" [isRequired]="true">
+                                            <ux-form-control formControlName="language" id="language"></ux-form-control>
+                                            <ux-control-feedback *ngIf="dynamicConfig.controls['language'].invalid && dynamicConfig.controls['language'].touched && dynamicConfig.controls['language'].hasError('forbiddenLanguage')" typeClass="danger">
+                                                The language should not be empty and contain only 2 language code and optional region (e.g. en or en-US)
+                                            </ux-control-feedback>
+                                        </ux-form-group>
+                                        <ux-form-group label="Maximized window" [isVertical]="true"  [isRequired]="true">
+                                            <ux-form-control [isCheckbox]="true"  formControlName="maximized" id="maximized"></ux-form-control>
+                                        </ux-form-group>
+                                        <ux-form-group label="Window size" [isVertical]="true" [isRequired]="true">
+                                            <ux-form-control formControlName="windowSize" id="window_size"></ux-form-control>
+                                            <ux-control-feedback *ngIf="dynamicConfig.controls['windowSize'].invalid && dynamicConfig.controls['windowSize'].touched && dynamicConfig.controls['windowSize'].hasError('forbiddenWindowSize')" typeClass="danger">
+                                                The window size should not be empty and contain display resolution width, height (e.g. 1920,1080)
+                                            </ux-control-feedback>
+                                        </ux-form-group>
+                                        <ux-form-group label="Load images" [isVertical]="true" [isRequired]="true">
+                                            <input type="radio" name="loadImages" euiInputRadio value="ALLOW" label="Allow" formControlName="loadImages" id="load_image_allow" />
+                                            <input type="radio" name="loadImages" euiInputRadio value="BLOCK" label="Block" formControlName="loadImages" id="load_image_block" />
+                                        </ux-form-group>
+                                        <ux-form-group label="Allow cookies" [isVertical]="true" [isRequired]="true">
+                                            <input type="radio" name="allowCookies" euiInputRadio value="ALLOW" label="Allow" formControlName="allowCookies" id="allow_cookies_allow" />
+                                            <input type="radio" name="allowCookies" euiInputRadio value="BLOCK" label="Block" formControlName="allowCookies" id="allow_cookies_block" />
+                                        </ux-form-group>
+                                        <ux-form-group label="Allow geolocation" [isVertical]="true" [isRequired]="true">
+                                            <input type="radio" name="allowGeolocation" euiInputRadio value="ALLOW" label="Allow" formControlName="allowGeolocation" id="allow_geolocation_allow" />
+                                            <input type="radio" name="allowGeolocation" euiInputRadio value="BLOCK" label="Block" formControlName="allowGeolocation" id="allow_geolocation_block" />
+                                        </ux-form-group>
+                                    </div>
+                                </div>
+                                <div class="col-md-6" id="chrome_options_list">
+                                    <eui-card>
+                                        <eui-card-header>
+                                            <eui-card-header-title>
+                                                Default options
+                                            </eui-card-header-title>
+
+                                            <eui-card-header-subtitle>
+                                                Those are the default options for selenium driver. The user allowed to change only a few properties for security and performance reasons.
+                                            </eui-card-header-subtitle>
+
+                                            <eui-card-header-body>
+                                                <div class="eui-u-flex">
+                                                    Chrome selenium options
+                                                </div>
+                                            </eui-card-header-body>
+                                        </eui-card-header>
+
+                                        <eui-card-content>
+                                            <p><strong>--headless </strong>Chrome is running in headless mode for better performance.</p>
+                                            <p><strong>--lang </strong>The language file that we want to try to open. Of the form language[-country] where language is the 2 letter code from ISO-639.</p>
+                                            <p><strong>--start-maximized </strong>Starts the browser maximized, regardless of any previous settings.</p>
+                                            <p><strong>--no-sandbox </strong>Disables the sandbox for all process types that are normally sandboxed. Meant to be used as a browser-level switch for testing purposes only.</p>
+                                            <p><strong>--window-size </strong>Sets the initial window size. Provided as string in the format "800,600".</p>
+                                            <p><strong>--disable-popup-blocking </strong>Disables pop-up blocking.</p>
+                                            <p><strong>--disable-dev-shm-usage </strong>The /dev/shm partition is too small in certain VM environments, causing Chrome to fail or crash (see http://crbug.com/715363). Use this flag to work-around this issue (a temporary directory will always be used to create anonymous shared memory files)</p>
+                                            <p><strong>--disable-default-apps </strong>Disables installation of default apps on first run. This is used during automated testing.</p>
+                                            <p><strong>--disable-audio-output </strong>Disables audio output</p>
+                                            <p><strong> profile.managed_default_content_settings.notifications=2 </strong>Disable notification</p>
+                                            <p><strong> profile.managed_default_content_settings.images=1 </strong>Allow image loading</p>
+                                            <p><strong> profile.managed_default_content_settings.media_stream=2 </strong>Block usage of microphone and camper</p>
+                                            <p><strong> profile.managed_default_content_settings.cookies=2 </strong>Block cookies from websites</p>
+                                            <p><strong> profile.managed_default_content_settings.plugins=2 </strong>Block chrome plugins</p>
+                                            <p><strong> profile.managed_default_content_settings.geolocation=2 </strong>Block geolocation</p>
+                                        </eui-card-content>
+                                    </eui-card>
+                                </div>
+                            </div>
+                        </ux-panel>
+                        <ux-form-group label="Fetch interval (in minutes)" [isVertical]="true">
+                            <ux-form-control [isNumber]="true"  formControlName="fetchInterval" id="fetch_interval"></ux-form-control>
+                            <ux-control-feedback *ngIf="form.controls['fetchInterval'].invalid && form.controls['fetchInterval'].touched" typeClass="danger">
+                                This field is required and should be between -1 and 525600 inclusive
+                            </ux-control-feedback>
+                        </ux-form-group>
+                        <ux-form-group label="Fetch interval when error (in minutes)" [isVertical]="true">
+                            <ux-form-control [isNumber]="true"  formControlName="fetchIntervalWhenError" id="fetch_interval_when_error"></ux-form-control>
+                            <ux-control-feedback *ngIf="form.controls['fetchIntervalWhenError'].invalid && form.controls['fetchIntervalWhenError'].touched" typeClass="danger">
+                                This field is required and should be between -1 and 525600 inclusive
+                            </ux-control-feedback>
+                        </ux-form-group>
+                        <ux-form-group label="Fetch interval when fetch error (in minutes)" [isVertical]="true">
+                            <ux-form-control [isNumber]="true"  formControlName="fetchIntervalWhenFetchError" id="fetch_interval_when_fetch_error"></ux-form-control>
+                            <ux-control-feedback *ngIf="form.controls['fetchIntervalWhenFetchError'].invalid && form.controls['fetchIntervalWhenFetchError'].touched" typeClass="danger">
+                                This field is required abd should be between -1 and 525600 inclusive
+                            </ux-control-feedback>
+                        </ux-form-group>
+                        <ux-form-group label="Disable text extraction" [isVertical]="true"  [isRequired]="true" validationErrorMessage="This field is required">
+                            <ux-form-control [isCheckbox]="true"  formControlName="extractorNoText" id="extractor_no_text"></ux-form-control>
+                        </ux-form-group>
+                        <ux-form-group label="Text extractor include patterns" [isVertical]="true">
+                            <ux-form-control [isTextarea]="true" [rows]="10" formControlName="extractorTextIncludePattern" id="extractor_text_include_pattern"></ux-form-control>
+                        </ux-form-group>
+                        <ux-form-group label="Text extractor exclude tags" [isVertical]="true">
+                            <ux-form-control [isTextarea]="true" [rows]="10" formControlName="extractorTextExcludeTags" id="extractor_text_exclude_tags"></ux-form-control>
+                        </ux-form-group>
+                        <ux-form-group label="Http content limit" [isVertical]="true">
+                            <ux-form-control [isNumber]="true"  formControlName="httpContentLimit" id="http_content_limit"></ux-form-control>
+                            <ux-control-feedback *ngIf="form.controls['httpContentLimit'].invalid && form.controls['httpContentLimit'].touched" typeClass="danger">
+                                This field is required and should be between -1 and 2147483647 inclusive
+                            </ux-control-feedback>
+                        </ux-form-group>
+                        <ux-form-group label="Emit Outlinks" [isVertical]="true"  [isRequired]="true" validationErrorMessage="This field is required">
+                            <ux-form-control [isCheckbox]="true"  formControlName="emitOutLinks" id="emit_out_links"></ux-form-control>
+                        </ux-form-group>
+                        <ux-form-group label="Maximum emit outlinks per page" [isVertical]="true">
+                            <ux-form-control [isNumber]="true"  formControlName="maxEmitOutLinksPerPage" id="max_emit_out_links_per_page"></ux-form-control>
+                            <ux-control-feedback *ngIf="form.controls['maxEmitOutLinksPerPage'].invalid && form.controls['maxEmitOutLinksPerPage'].touched" typeClass="danger">
+                                This field is required and should be between -1 and 2147483647 inclusive
+                            </ux-control-feedback>
+                        </ux-form-group>
+
+                        <eui-tabs>
+                            <!-- Custom URL Filters-->
+
+                            <eui-tab [url]='null'>
+                                <euiTabLabel>
+                                    URL Filters <br> number of items: {{filterUrlFormDataList?.length}}
+                                </euiTabLabel>
+                                <euiTabContent>
+                                    <eui-card is="filter_url_table" euiNoContentPadding >
+                                        <eui-card-content>
+                                            <div class="eui-table__scrollable-wrapper">
+                                                <table id="url_filters_table" euiTable euiTableResponsive asyncTable [loading]="filterUrlSourcesLoading" [rows]="filterUrlSources" >
+                                                    <ng-template euiTemplate="header">
+                                                        <tr>
+                                                            <th>UrlFilter Name</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </ng-template>
+                                                    <ng-template let-filterUrl euiTemplate="body">
+                                                        <tr>
+                                                            <td>{{ filterUrl.name.default }}</td>
+                                                            <td>
+                                                                <button euiButton euiRounded euiIconButton euiSizeL euiBasicButton euiPrimary
+                                                                        (click)="addUrlFilter(filterUrl)"
+                                                                        euiDisabled="{{isFilterUrlInList(filterUrl.id)}}"
+                                                                        [attr.id]="'btn_add_filter_' + filterUrl.id"
+                                                                        title="Add URL Filter to Crawler">
+                                                                    <span euiIcon iconClass="eui-icon eui-icon-add-circle-o"></span>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </ng-template>
+                                                </table>
+                                            </div>
+                                            <eui-table-paginator
+                                                [page]="filterUrlPage"
+                                                [pageSize]="filterUrlPageSize"
+                                                [pageSizeOptions]="filterUrlPageSizeOptions"
+                                                [length]="filterUrlSourcesLength"
+                                                (pageChange)="filterUrlPageChange($event)">
+                                            </eui-table-paginator>
+                                        </eui-card-content>
+
+                                    </eui-card>
+
+                                    <div class="row mt-2"></div>
+                                    <ng-template ngFor
+                                                 [ngForOf]="filterUrlFormDataList"
+                                                 let-filterItem
+                                                 let-i="index">
+
+                                        <ux-panel label="URLFilter : {{filterItem.name.default}}" [isExpandable]="true" [isExpanded]="true">
+                                            <app-filters-form [jsonFormUrlData]="filterItem"
+                                                              [formUrlFilterConfig] = 'getUrlFiltersForm(i)'
+                                                              [values] = 'loadedUrlFiltersFormValues[i]'>
+                                            </app-filters-form>
+                                            <ux-layout-horizontal>
+                                                <uxLayoutHorizontalRight>
+                                                    <button euiButton euiOutline euiPrimary (click)='removeUrlFilter(filterItem.id)' id='remove_filter_{{filterItem.id}}'>Remove Filter</button>
+                                                </uxLayoutHorizontalRight>
+                                            </ux-layout-horizontal>
+                                        </ux-panel>
+                                    </ng-template>
+                                </euiTabContent>
+                            </eui-tab>
+                            <!-- Custom Parse Filters-->
+                            <eui-tab [url]='null'>
+                                <euiTabLabel>
+                                    PARSE Filters <br> number of items: {{filterParseFormDataList?.length}}
+                                </euiTabLabel>
+                                <euiTabContent>
+                                    <eui-card is="filter_parse_table" euiNoContentPadding >
+                                        <eui-card-content>
+                                            <div class="eui-table__scrollable-wrapper">
+                                                <table id="parse_filters_table" euiTable euiTableResponsive asyncTable [loading]="filterParseSourcesLoading" [rows]="filterParseSources" >
+                                                    <ng-template euiTemplate="header">
+                                                        <tr>
+                                                            <th>Parse Filter Name</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </ng-template>
+                                                    <ng-template let-filterParse euiTemplate="body">
+                                                        <tr>
+                                                            <td>{{ filterParse.name.default }}</td>
+                                                            <td>
+                                                                <button euiButton euiRounded euiIconButton euiSizeL euiBasicButton euiPrimary
+                                                                        (click)="addParseFilter(filterParse)"
+                                                                        euiDisabled="{{isFilterParseInList(filterParse.id)}}"
+                                                                        [attr.id]="'btn_add_parsefilter_' + filterParse.id"
+                                                                        title="Add PARSE Filter to Crawler">
+                                                                    <span euiIcon iconClass="eui-icon eui-icon-add-circle-o"></span>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </ng-template>
+                                                </table>
+                                            </div>
+                                            <eui-table-paginator
+                                                [page]="filterParsePage"
+                                                [pageSize]="filterParsePageSize"
+                                                [pageSizeOptions]="filterParsePageSizeOptions"
+                                                [length]="filterParseSourcesLength"
+                                                (pageChange)="filterParsePageChange($event)">
+                                            </eui-table-paginator>
+                                        </eui-card-content>
+                                    </eui-card>
+
+                                    <div class="row mt-2"></div>
+                                    <ng-template ngFor
+                                                 [ngForOf]="filterParseFormDataList"
+                                                 let-filterItem
+                                                 let-i="index">
+
+                                        <ux-panel label="ParseFilter : {{filterItem.name.default}}" [isExpandable]="true" [isExpanded]="true">
+                                            <app-filters-form [jsonFormUrlData]="filterItem"
+                                                              [formUrlFilterConfig] = 'getParseFiltersForm(i)'
+                                                              [values] = 'loadedParseFiltersFormValues[i]'>
+                                            </app-filters-form>
+                                            <ux-layout-horizontal>
+                                                <uxLayoutHorizontalRight>
+                                                    <button euiButton euiOutline euiPrimary (click)='removeParseFilter(filterItem.id)' id='remove_parsefilter_{{filterItem.id}}'>Remove Filter</button>
+                                                </uxLayoutHorizontalRight>
+                                            </ux-layout-horizontal>
+                                        </ux-panel>
+                                    </ng-template>
+                                </euiTabContent>
+                            </eui-tab>
+
+                            Custom Navigation Filters
+                            <eui-tab [url]='null'>
+                                <euiTabLabel>
+                                    NAVIGATION Filters <br> number of items: {{filterNavigationFormDataList?.length}}
+                                </euiTabLabel>
+                                <euiTabContent>
+                                    <eui-card is="filter_navigation_table" euiNoContentPadding >
+                                        <eui-card-content>
+                                            <div class="eui-table__scrollable-wrapper">
+                                                <table id="navigation_filters_table" euiTable euiTableResponsive asyncTable [loading]="filterNavigationSourcesLoading" [rows]="filterNavigationSources" >
+                                                    <ng-template euiTemplate="header">
+                                                        <tr>
+                                                            <th>Navigation Filter Name</th>
+                                                            <th>Action</th>
+                                                        </tr>
+                                                    </ng-template>
+                                                    <ng-template let-filterNavigation euiTemplate="body">
+                                                        <tr>
+                                                            <td>{{ filterNavigation.name.default }}</td>
+                                                            <td>
+                                                                <button euiButton euiRounded euiIconButton euiSizeL euiBasicButton euiPrimary
+                                                                        (click)="addNavigationFilter(filterNavigation)"
+                                                                        euiDisabled="{{isFilterNavigationInList(filterNavigation.id)}}"
+                                                                        [attr.id]="'btn_add_navigationfilter_' + filterNavigation.id"
+                                                                        title="Add NAVIGATION Filter to Crawler">
+                                                                    <span euiIcon iconClass="eui-icon eui-icon-add-circle-o"></span>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </ng-template>
+                                                </table>
+                                            </div>
+                                            <eui-table-paginator
+                                                [page]="filterNavigationPage"
+                                                [pageSize]="filterNavigationPageSize"
+                                                [pageSizeOptions]="filterNavigationPageSizeOptions"
+                                                [length]="filterNavigationSourcesLength"
+                                                (pageChange)="filterNavigationPageChange($event)">
+                                            </eui-table-paginator>
+                                        </eui-card-content>
+                                    </eui-card>
+
+                                    <div class="row mt-2"></div>
+                                    <ng-template ngFor
+                                                 [ngForOf]="filterNavigationFormDataList"
+                                                 let-filterItem
+                                                 let-i="index">
+
+                                        <ux-panel label="NavigationFilter : {{filterItem.name.default}}" [isExpandable]="true" [isExpanded]="true">
+                                            <app-filters-form [jsonFormUrlData]="filterItem"
+                                                              [formUrlFilterConfig]="getNavigationFiltersForm(i)"
+                                                              [values]="loadedNavigationFiltersFormValues[i]">
+                                            </app-filters-form>
+                                            <ux-layout-horizontal>
+                                                <uxLayoutHorizontalRight>
+                                                    <button euiButton euiOutline euiPrimary
+                                                            (click)="removeNavigationFilter(filterItem.id)"
+                                                            id="remove_navigationfilter_{{filterItem.id}}">
+                                                        Remove Filter
+                                                    </button>
+                                                </uxLayoutHorizontalRight>
+                                            </ux-layout-horizontal>
+                                        </ux-panel>
+                                    </ng-template>
+                                </euiTabContent>
+                            </eui-tab>
+
+                        </eui-tabs>
+
+                        <!-- Legacy Parser Filters -->
+
+                        <ux-panel label="Filters" [isExpandable]="true" [isExpanded]="true" *ngIf="hasLegacyParserFilters()">
+                            <div class="row" formArrayName="parserFilters" >
+                                <div class="col-12">
+                                    <div *ngFor="let filter of parserFilters.controls; let i = index;">
+                                        <div [formGroup]="filter">
+                                            <ux-panel [label]="filterName(filter)">
+                                                <div class="row" *ngIf="filterName(filter) === 'XPathFilter'">
+                                                    <div class="col-12">
+                                                        <ux-form-group label="JSON value" [isVertical]="true">
+                                                            <ux-form-control [isTextarea]="true" [rows]="15" formControlName="params" [isDisabled]="isParserFiltersDisabled"></ux-form-control>
+                                                            <ux-control-feedback *ngIf="filterParams(filter).invalid && filterParams(filter).touched" typeClass="danger">
+                                                                This field should be a valid json or empty
+                                                            </ux-control-feedback>
+                                                        </ux-form-group>
+                                                    </div>
+                                                </div>
+                                                <div class="row" *ngIf="filterName(filter) === 'BasicURLFilter'">
+                                                    <div class="col-12" [formGroup]="filterParams(filter)">
+                                                        <ux-form-group label="Maximum path repetition" [isVertical]="true">
+                                                            <ux-form-control [isNumber]="true"  formControlName="maxPathRepetition" [isDisabled]="isParserFiltersDisabled"></ux-form-control>
+                                                            <ux-control-feedback *ngIf="filterParams(filter).controls['maxPathRepetition'].invalid && filterParams(filter).controls['maxPathRepetition'].touched" typeClass="danger">
+                                                                This field is required and should be between 1 and 10 inclusive
+                                                            </ux-control-feedback>
+                                                        </ux-form-group>
+                                                        <ux-form-group label="Maximum length" [isVertical]="true">
+                                                            <ux-form-control [isNumber]="true"  formControlName="maxLength" [isDisabled]="isParserFiltersDisabled"></ux-form-control>
+                                                            <ux-control-feedback *ngIf="filterParams(filter).controls['maxLength'].invalid && filterParams(filter).controls['maxLength'].touched" typeClass="danger">
+                                                                This field is required and should be between 0 and 1024 inclusive
+                                                            </ux-control-feedback>
+                                                        </ux-form-group>
+                                                    </div>
+                                                </div>
+                                                <div class="row" *ngIf="filterName(filter) === 'MaxDepthFilter'">
+                                                    <div class="col-12" [formGroup]="filterParams(filter)">
+                                                        <ux-form-group label="Maximum depth" [isVertical]="true">
+                                                            <ux-form-control [isNumber]="true"  formControlName="maxDepth" [isDisabled]="isParserFiltersDisabled"></ux-form-control>
+                                                            <ux-control-feedback *ngIf="filterParams(filter).controls['maxDepth'].invalid && filterParams(filter).controls['maxDepth'].touched" typeClass="danger">
+                                                                This field is required and should be between -1 and 2147483647 inclusive
+                                                            </ux-control-feedback>
+                                                        </ux-form-group>
+                                                    </div>
+                                                </div>
+                                                <div class="row" *ngIf="filterName(filter) === 'BasicURLNormalizer'">
+                                                    <div class="col-12" [formGroup]="filterParams(filter)">
+                                                        <ux-form-group label="Remove anchor part" [isVertical]="true"  [isRequired]="true" validationErrorMessage="This field is required">
+                                                            <ux-form-control [isCheckbox]="true"  formControlName="removeAnchorPart" [isDisabled]="isParserFiltersDisabled"></ux-form-control>
+                                                        </ux-form-group>
+                                                        <ux-form-group label="Unmangle query string" [isVertical]="true"  [isRequired]="true" validationErrorMessage="This field is required">
+                                                            <ux-form-control [isCheckbox]="true"  formControlName="unmangleQueryString" [isDisabled]="isParserFiltersDisabled"></ux-form-control>
+                                                        </ux-form-group>
+                                                        <ux-form-group label="Check valid URI" [isVertical]="true"  [isRequired]="true" validationErrorMessage="This field is required">
+                                                            <ux-form-control [isCheckbox]="true"  formControlName="checkValidURI" [isDisabled]="isParserFiltersDisabled"></ux-form-control>
+                                                        </ux-form-group>
+                                                    </div>
+                                                </div>
+                                                <div class="row" *ngIf="filterName(filter) === 'HostURLFilter'">
+                                                    <div class="col-12" [formGroup]="filterParams(filter)">
+                                                        <ux-form-group label="Ignore outside host" [isVertical]="true"  [isRequired]="true" validationErrorMessage="This field is required">
+                                                            <ux-form-control [isCheckbox]="true"  formControlName="ignoreOutsideHost" [isDisabled]="isParserFiltersDisabled"></ux-form-control>
+                                                        </ux-form-group>
+                                                        <ux-form-group label="Ignore outside domain" [isVertical]="true"  [isRequired]="true" validationErrorMessage="This field is required">
+                                                            <ux-form-control [isCheckbox]="true"  formControlName="ignoreOutsideDomain" [isDisabled]="isParserFiltersDisabled"></ux-form-control>
+                                                        </ux-form-group>
+                                                    </div>
+                                                </div>
+                                                <div class="row" *ngIf="filterName(filter) === 'RegexURLFilter'">
+                                                    <div class="col-12" [formGroup]="filterParams(filter)">
+                                                        <ux-form-group label="Value" [isVertical]="true">
+                                                            <ux-form-control [isTextarea]="true" [rows]="15" formControlName="regexFilter" [isDisabled]="isParserFiltersDisabled"></ux-form-control>
+                                                        </ux-form-group>
+                                                    </div>
+                                                </div>
+                                                <div class="row" *ngIf="filterName(filter) === 'FastURLFilter'">
+                                                    <div class="col-12">
+                                                        <ux-form-group label="JSON value" [isVertical]="true">
+                                                            <ux-form-control [isTextarea]="true" [rows]="15" formControlName="params" [isDisabled]="isParserFiltersDisabled"></ux-form-control>
+                                                        </ux-form-group>
+                                                        <ux-control-feedback *ngIf="filterParams(filter).invalid && filterParams(filter).touched" typeClass="danger">
+                                                            This field should be a valid json or empty
+                                                        </ux-control-feedback>
+                                                    </div>
+                                                </div>
+                                            </ux-panel>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </ux-panel>
+                    </form>
+                </div>
+            </div>
+        </ux-panel>
+    </eui-page-content>
+
+    <eui-page-footer>
+        <div class="footer-action-bar">
+            <button class="eui-u-mr-s" id="cancel_btn" euiButton euiSecondary (click)="onCancel($event)">Cancel</button>
+            <button class="eui-u-mr-s" id="save_btn"   euiButton euiPrimary (click)="onSave($event)" [euiDisabled]="!isCrawlerFormValid()">Save</button>
+        </div>
+    </eui-page-footer>
+
+</eui-page>

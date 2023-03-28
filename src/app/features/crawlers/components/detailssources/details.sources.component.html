@@ -1,0 +1,76 @@
+<eui-page>
+
+    <eui-page-header label="Sources for Crawler " subLabel="{{currentCrawler?.name}}"></eui-page-header>
+
+    <eui-page-content>
+
+        <ux-panel label="All Sources list" [hasNoContentPadding]="true" badgeLabel="{{asyncDataAllSourceLength}}" labelInfos="result(s) found">
+
+            <uxPanelHeaderRightContent>
+                <button euiButton euiOutline euiPrimary (click)="addSelectedSources()" id="add_source_to_crawler">Add Selected</button>
+            </uxPanelHeaderRightContent>
+
+            <table euiTable euiTableResponsive asyncTable [loading]="loadingAllSources" [rows]="asyncDataAllSource" (selectedRows)="onSelectedRowsAllSources($event)" id="sources_all_selection">
+                <ng-template euiTemplate="header">
+                    <tr>
+                        <th></th>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Url</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template let-source euiTemplate="body">
+                    <tr [isSelectable]="source" [class.eui-table__row--selected]="isSelectedFromAllSources(source)">
+                        <td>{{ source.id }}</td>
+                        <td>{{ source.name }}</td>
+                        <td>{{ source.url }}</td>
+                        <td>
+                            <button euiButton euiRounded euiIconButton euiSizeL euiBasicButton euiPrimary (click)="onSaveSource(source)" title="Add to Crawler">
+                                <span euiIcon iconClass="eui-icon eui-icon-add-circle-o"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </table>
+            <eui-table-paginator [page]="pageAllSources"
+                                 [pageSize]="pageSizeAllSources"
+                                 [pageSizeOptions]="pageSizeOptionsAllSources"
+                                 [length]="asyncDataAllSourceLength"
+                                 (pageChange)="pageChangeAllSources($event)"></eui-table-paginator>
+
+        </ux-panel>
+
+        <ux-panel label="Crawler has" [hasNoContentPadding]="true" badgeLabel="{{asyncDataSourceLength}}" labelInfos="Sources">
+            <table euiTable euiTableResponsive asyncTable [loading]="loading" [rows]="asyncDataSource"  id="sources_crawler">
+                <ng-template euiTemplate="header">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Url</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template let-source euiTemplate="body">
+                    <tr>
+                        <td>{{ source.id }}</td>
+                        <td>{{ source.name }}</td>
+                        <td>{{ source.url }}</td>
+                        <td>
+                            <button euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiDanger (click)="onRemoveSourceFromCrawler(source)" title="Remove from Crawler">
+                                <span euiIcon iconClass="eui-icon eui-icon-delete-o"></span>
+                            </button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </table>
+
+            <eui-table-paginator [page]="page" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" [length]="asyncDataSourceLength" (pageChange)="pageChange($event)"></eui-table-paginator>
+
+        </ux-panel>
+    </eui-page-content>
+</eui-page>
+
+<ux-message-box *ngIf="selectedSource" id="remove-source-confirm" titleLabel="Confirm remove source" (clicked)="onRemoveSourceFromCrawlerAction($event)">
+    <p>Are you sure you want to remove <strong>{{selectedSource?.name}}</strong> <p> from Crawler <strong>{{currentCrawler?.name}}</strong> ?</p>
+</ux-message-box>

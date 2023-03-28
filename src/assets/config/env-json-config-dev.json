@@ -1,0 +1,77 @@
+{
+    "global": {
+        "appTitle": "CSDR-app",
+        "i18n": {
+            "i18nService": {
+                "defaultLanguage": "en",
+                "languages": ["en", "fr"]
+            },
+            "i18nLoader": {
+                "i18nFolders": ["i18n-eui", "i18n", "i18n-ecl"]
+            }
+        },
+        "user": {
+            "defaultUserPreferences": {
+                "dashboard": { },
+                "lang": "en"
+            }
+        },
+        "environment": "local",
+        "member": "web_app",
+        "stsEnabled": true,
+        "sts": {
+            "issuer": "http://keycloak:9080/auth/realms/jhipster",
+            "loginUrl": "http://keycloak:9080/auth/realms/jhipster/protocol/openid-connect/auth",
+            "logoutUrl": "http://keycloak:9080/auth/realms/jhipster/protocol/openid-connect/logout",
+            "authorizationEndpoint": "http://keycloak:9080/auth/realms/jhipster/protocol/openid-connect/auth",
+            "tokenEndpoint": "http://keycloak:9080/auth/realms/jhipster/protocol/openid-connect/token",
+            "userinfoEndpoint": "http://keycloak:9080/auth/realms/jhipster/protocol/openid-connect/userinfo",
+            "redirectUri": "http://host.docker.internal:4200",
+            "clientId": "web_app",
+            "responseType": "code",
+            "scope": "openid profile email",
+            "showDebugInformation": true,
+            "strictDiscoveryDocumentValidation": false,
+            "useSilentRefresh" : false,
+            "requireHttps" : false
+        }
+    },
+    "openIdConnect": {
+        "enabled": false,
+        "allowDevelopmentLogin": true,
+        "stripIdTokenFromLocation": true,
+        "maximumRequestRetries": 1,
+        "metadataUrl": "https://webgate.ec.europa.eu/cas/oauth2/.well-known/openid-configuration",
+        "spaClientId": "your-webapp-EU-Login-ACC-client-ID-here",
+        "spaRedirectUrl": "https://your-development-server-url/",
+        "apiGatewayAccessTokenUrl": "https://api.tech.ec.europa.eu/federation/oauth/token",
+        "apiGatewayAccessTokenAudienceId": "DFlp4emQ6jCLjNw8U7ko18zNjb9bwJ3ACrnP89iPsVv4zcChOEVRPHCT88Q7jPpNGCFa0hJEtV77rBj6L1XvOt-Jj71zxYb8yr7ujzQt669zSG",
+        "apiGatewayConsumerKey": "API-Gateway-sandbox-URL-consumer-key-here",
+        "apiGatewayServices": {
+        },
+        "services": {
+        }
+    },
+    "modules": {
+        "sources": {
+            "api": {
+                "base": "http://host.docker.internal:8081/api/sources"
+            }
+        },
+        "acquisitions": {
+            "api": {
+                "base": "http://host.docker.internal:8081/api/acquisitions"
+            }
+        },
+        "crawlers": {
+            "api": {
+                "base": "http://host.docker.internal:8081/api/crawlers"
+            }
+        },
+        "playground": {
+            "api": {
+                "base": "http://host.docker.internal:8082/api/"
+            }
+        }
+    }
+}

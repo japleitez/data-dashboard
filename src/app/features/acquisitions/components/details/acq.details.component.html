@@ -1,0 +1,37 @@
+<eui-page>
+    <eui-page-header label="Data Acquisition" subLabel="Create a data acquisition"></eui-page-header>
+
+    <eui-page-content>
+
+        <form [formGroup]="form" class="form--large-labels p-2">
+            <div class="row">
+                <div class="col-md-7">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <ux-form-group label="Crawler Name" [isVertical]="true" [isRequired]="true">
+                                <ux-form-control formControlName="name" id="acquisition_name"></ux-form-control>
+                                <ux-control-feedback *ngIf="form.controls['name'].invalid && form.controls['name'].touched && form.controls['name'].hasError('forbiddenName')" typeClass="danger">
+                                    The Crawler name should not be empty and contain only [a-zA-Z0-9 _.]
+                                </ux-control-feedback>
+                                <ux-control-feedback *ngIf="form.controls['name'].invalid && form.controls['name'].touched && form.controls['name'].hasError('maxlength')" typeClass="danger">
+                                    The Crawler name should be maximum 100 characters long
+                                </ux-control-feedback>
+                            </ux-form-group>
+                        </div>
+                    </div>
+                    <ux-form-group label="Workflow ID" [isVertical]="true" [isRequired]="true" validationErrorMessage="The Workflow ID is required and/or is invalid">
+                        <ux-form-control formControlName="uuid" id="acquisition_uuid"></ux-form-control>
+                    </ux-form-group>
+                </div>
+            </div>
+        </form>
+    </eui-page-content>
+
+    <eui-page-footer>
+        <div class="footer-action-bar">
+            <button class="eui-u-mr-s" id="cancel_btn" euiButton euiSecondary (click)="onCancel($event)">Cancel</button>
+            <button class="eui-u-mr-s" id="start_btn"  euiButton euiPrimary (click)="onStart($event)" [euiDisabled]="!form.valid">Start</button>
+        </div>
+    </eui-page-footer>
+
+</eui-page>

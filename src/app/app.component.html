@@ -1,0 +1,42 @@
+<eui-app [userInfos]="userInfos?.fullName" isSidebarOpen=true>
+    <eui-app-toolbar>
+        <eui-toolbar>
+            <eui-toolbar-logo></eui-toolbar-logo>
+            <eui-toolbar-environment>{{environment}}</eui-toolbar-environment>
+            <eui-toolbar-app appName="Dashboard"></eui-toolbar-app>
+            <eui-toolbar-items euiPositionRight>
+                <eui-toolbar-item-user-profile [hasWelcomeLabel]="true" welcomeLabel="Hello" impersonateLabel="{{ 'eui.you-are-logged-in-as' | translate }}">
+                    <eui-user-profile-menu>
+                        <eui-user-profile-menu-item>
+                            <eui-icon iconClass="eui-icon-person-thin"></eui-icon> {{ userInfo.name }}, {{ userInfo.email }}
+                        </eui-user-profile-menu-item>
+                        <eui-user-profile-menu-item (click)="logout()">
+                            <eui-icon iconClass="eui-icon-logout-thin"></eui-icon> {{ 'eui.sign-out' | translate }}
+                        </eui-user-profile-menu-item>
+                    </eui-user-profile-menu>
+                </eui-toolbar-item-user-profile>
+                <eui-toolbar-item-notifications>
+                    <eui-notifications [count]="notificationItems?.length" [items]="notificationItems"></eui-notifications>
+                </eui-toolbar-item-notifications>
+            </eui-toolbar-items>
+        </eui-toolbar>
+    </eui-app-toolbar>
+    <eui-app-sidebar>
+        <eui-app-sidebar-header>
+            <eui-app-sidebar-header-user-profile (toggle)="onSidebarProfileToggle($event)" welcomeLabel="Hello" impersonateLabel="{{ userInfo.name }}">
+            </eui-app-sidebar-header-user-profile>
+        </eui-app-sidebar-header>
+        <eui-app-sidebar-body *ngIf="isAuthenticated$">
+            <eui-app-sidebar-menu [items]="menuLinks" [hasFilter]="true" [hasIcons]="true"></eui-app-sidebar-menu>
+        </eui-app-sidebar-body>
+        <eui-app-sidebar-footer>
+        </eui-app-sidebar-footer>
+        <eui-app-sidebar-drawer [isExpanded]="showProfileDrawer">
+            <h4>User profile details</h4>
+            <div class="container">
+                <p>This is the drawer custom content with inner scroll when content exceeds viewport height...</p>
+                Lorem-ipsum-sample text here...
+            </div>
+        </eui-app-sidebar-drawer>
+    </eui-app-sidebar>
+</eui-app>

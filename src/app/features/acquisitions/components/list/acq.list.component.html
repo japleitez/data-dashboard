@@ -1,0 +1,64 @@
+<eui-page>
+    <eui-page-header label="Acquisitions" ></eui-page-header>
+
+    <eui-page-content>
+
+        <ux-panel label="Acquisitions list" [hasNoContentPadding]="true" badgeLabel="{{asyncDataAcqLength}}" labelInfos="result(s) found">
+
+            <uxPanelHeaderRightContent>
+                <eui-table-filter #filter></eui-table-filter>
+
+                <ux-button-group [hasPairedIcon]="true" styleClass="ml-3" (clicked)="onCreateAcquisition($event)" id="create_acquisition">
+                    <ux-button-group-item label="Create a acquisition"></ux-button-group-item>
+                    <ux-button-group-item iconClass="ux-icon ux-icon-plus"></ux-button-group-item>
+                </ux-button-group>
+            </uxPanelHeaderRightContent>
+
+
+            <table euiTable euiTableResponsive asyncTable [loading]="loading" [rows]="asyncDataAcq" >
+                <ng-template euiTemplate="header">
+                    <tr>
+                        <th>Acquisition ID</th>
+                        <th>Workflow ID</th>
+                        <th>Crawler</th>
+                        <th>Start Date</th>
+                        <th>Last Update</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template let-acquisition euiTemplate="body">
+                    <tr>
+                        <td>{{ acquisition.id }}</td>
+                        <td>{{ acquisition.workflowId }}</td>
+                        <td>{{ acquisition.crawlerName }}</td>
+                        <td>{{ acquisition.startDate }}</td>
+                        <td>{{ acquisition.lastUpdateDate }}</td>
+                        <td>{{ acquisition.status }}</td>
+                        <td>
+                            <button *ngIf="canStart(acquisition)" title="start" [attr.id]="'btn_start_' + acquisition.id" euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiPrimary (click)="onRunAcquisition(acquisition)">
+                                <fa-icon [icon]="faPlay"></fa-icon>
+                            </button>
+                            <button *ngIf="canPause(acquisition)" title="pause" [attr.id]="'btn_pause_' + acquisition.id" euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiPrimary (click)="onPauseAcquisition(acquisition)">
+                                <fa-icon [icon]="faPause"></fa-icon>
+                            </button>
+                            <button *ngIf="canStop(acquisition)" title="stop" [attr.id]="'btn_stop_' + acquisition.id" euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiPrimary (click)="onStopAcquisition(acquisition)">
+                                <fa-icon [icon]="faStop"></fa-icon>
+                            </button>
+                            <span *ngIf="hasNoAction(acquisition)" [attr.id]="'spn_no_action_' + acquisition.id"></span>
+                        </td>
+                    </tr>
+                </ng-template>
+            </table>
+
+            <eui-table-paginator [page]="page" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" [length]="asyncDataAcqLength" (pageChange)="pageChange($event)"></eui-table-paginator>
+
+        </ux-panel>
+    </eui-page-content>
+</eui-page>
+
+<ux-message-box *ngIf="selectedAcquisition" id="delete-acquisition-confirm" titleLabel="Confirm acquisition delete"
+                (clicked)="onDeleteAcquisitionConfirmResponse($event)">
+    <p>Are you sure you want to delete </p>
+    <p><strong>{{selectedAcquisition.name}}</strong>?</p>
+</ux-message-box>

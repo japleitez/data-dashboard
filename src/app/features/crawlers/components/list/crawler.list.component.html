@@ -1,0 +1,61 @@
+<eui-page>
+    <eui-page-header label="Crawlers" ></eui-page-header>
+
+    <eui-page-content >
+
+        <ux-panel label="Crawlers list" [hasNoContentPadding]="true" badgeLabel="{{asyncDataCrawlerLength}}" labelInfos="result(s) found">
+
+            <uxPanelHeaderRightContent>
+                <eui-table-filter #filter></eui-table-filter>
+
+                <ux-button-group [hasPairedIcon]="true" styleClass="ml-3" (clicked)="onCreateCrawler($event)" id="create_crawler">
+                    <ux-button-group-item label="Create a crawler"></ux-button-group-item>
+                    <ux-button-group-item iconClass="ux-icon ux-icon-plus"></ux-button-group-item>
+                </ux-button-group>
+
+                <ux-button-group [hasPairedIcon]="true" styleClass="ml-3" (clicked)="onImport($event)" id="import_file">
+                    <ux-button-group-item label="Import file"></ux-button-group-item>
+                    <ux-button-group-item iconClass="ux-icon ux-icon-plus"></ux-button-group-item>
+                </ux-button-group>
+
+            </uxPanelHeaderRightContent>
+
+            <table euiTable euiTableResponsive asyncTable [loading]="loading" [rows]="asyncDataCrawler" >
+                <ng-template euiTemplate="header">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Actions</th>
+                        <th>Sources</th>
+                    </tr>
+                </ng-template>
+                <ng-template let-crawler euiTemplate="body">
+                    <tr>
+                        <td>{{ crawler.id }}</td>
+                        <td>{{ crawler.name }}</td>
+                        <td>
+                            <button euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiPrimary (click)="onCopyCrawler(crawler)" [attr.id]="'copy_button_' + crawler.id" euiTooltipInfo euiTooltip="Copy Crawler to..."><span euiIcon iconClass="eui-icon eui-icon-ecl-copy"></span></button>
+                            <button euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiPrimary (click)="onEditCrawler(crawler)" [attr.id]="'edit_button_' + crawler.id" euiTooltipInfo euiTooltip="Edit Crawler"><span euiIcon iconClass="eui-icon eui-icon-create"></span></button>
+                            <button euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiDanger (click)="onDeleteCrawler(crawler)" euiTooltipDanger euiTooltip="Delete Crawler"><span euiIcon iconClass="eui-icon eui-icon-delete-o"></span></button>
+                            <button euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiPrimary (click)="onPlayCrawler(crawler)" [attr.id]="'start_button_' + crawler.id" euiTooltipInfo euiTooltip="Start acquisition"><span class="eui-icon eui-icon-caret-right" ></span></button>
+                        </td>
+                        <td>
+                            <button euiButton euiOutline euiPrimary (click)="onEditCrawlerSources(crawler)" [attr.id]="'edit_sources_button_'+ crawler.id" euiTooltipInfo euiTooltip="Edit Sources &#13; for Crawler : &#13; {{ crawler.name }}" [position]="'left'">Modify</button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </table>
+
+            <eui-table-paginator #paginator [page]="page" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions" [length]="asyncDataCrawlerLength" (pageChange)="pageChange($event)"></eui-table-paginator>
+
+        </ux-panel>
+    </eui-page-content>
+</eui-page>
+
+<ux-message-box *ngIf="selectedCrawler"
+                id="delete-crawler-confirm"
+                titleLabel="Confirm crawler delete"
+                (clicked)="onDeleteCrawlerConfirmResponse($event)">
+    <p>Are you sure you want to delete </p>
+    <p><strong>{{selectedCrawler.name}}</strong>?</p>
+</ux-message-box>

@@ -1,0 +1,65 @@
+{
+    "global": {
+        "environment": "local-cognito",
+        "member": "WIHP",
+        "stsEnabled": true,
+        "sts": {
+            "issuer": "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_FTcBNv8tJ",
+            "loginUrl": "https://sts-mr.auth.eu-central-1.amazoncognito.com/login",
+            "logoutUrl": "https://sts-mr.auth.eu-central-1.amazoncognito.com/login?&logout_uri=https://ENV.wihp.ecdp.tech.ec.europa.eu/",
+            "authorizationEndpoint": "https://sts-mr.auth.eu-central-1.amazoncognito.com/oauth2/authorize",
+            "tokenEndpoint": "https://sts-mr.auth.eu-central-1.amazoncognito.com/oauth2/token",
+            "userinfoEndpoint": "https://sts-mr.auth.eu-central-1.amazoncognito.com/oauth2/userInfo",
+            "redirectUri": "http://localhost:4200",
+            "clientId": "gipo6esma7p2bajh2h2aq8nua",
+            "responseType": "code",
+            "scope": "openid profile email",
+            "showDebugInformation": true,
+            "strictDiscoveryDocumentValidation": false,
+            "useSilentRefresh" : false
+        }
+    },
+    "openIdConnect": {
+        "enabled": false,
+        "allowDevelopmentLogin": true,
+        "stripIdTokenFromLocation": true,
+        "maximumRequestRetries": 1,
+        "metadataUrl": "https://webgate.ec.europa.eu/cas/oauth2/.well-known/openid-configuration",
+        "spaClientId": "your-webapp-EU-Login-ACC-client-ID-here",
+        "spaRedirectUrl": "https://your-development-server-url/",
+        "apiGatewayAccessTokenUrl": "https://api.tech.ec.europa.eu/federation/oauth/token",
+        "apiGatewayAccessTokenAudienceId": "DFlp4emQ6jCLjNw8U7ko18zNjb9bwJ3ACrnP89iPsVv4zcChOEVRPHCT88Q7jPpNGCFa0hJEtV77rBj6L1XvOt-Jj71zxYb8yr7ujzQt669zSG",
+        "apiGatewayConsumerKey": "API-Gateway-sandbox-URL-consumer-key-here",
+        "apiGatewayServices": {
+        },
+        "services": {
+        }
+    },
+    "modules": {
+        "core": {
+            "base": "/api",
+            "userDetails": "/user-details",
+            "userPreferences": "/user-preferences"
+        },
+        "sources": {
+            "api": {
+                "base": "http://host.docker.internal:8081/api/sources"
+            }
+        },
+        "acquisitions": {
+            "api": {
+                "base": "http://host.docker.internal:8081/api/acquisitions"
+            }
+        },
+        "crawlers": {
+            "api": {
+                "base": "http://host.docker.internal:8081/api/crawlers"
+            }
+        },
+        "playground": {
+            "api": {
+                "base": "http://host.docker.internal:8082/api/"
+            }
+        }
+    }
+}

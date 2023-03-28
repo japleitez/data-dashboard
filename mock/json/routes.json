@@ -1,0 +1,9 @@
+{
+    "/api/*": "/$1",
+    "/api/configs": "/configs",
+    "/api/sources": "/sources",
+    "/api/crawlers": "/crawlers",
+    "/api/crawlers\\?*": "/crawlers",
+    "/api/acquisitions": "/acquisitions",
+    "/api/url-filters": "/url-filters"
+}

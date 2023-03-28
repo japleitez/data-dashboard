@@ -1,0 +1,52 @@
+{
+    "name": "eui-angular-app",
+    "version": "13.1.4",
+    "license": "EUPL-1.1",
+    "scripts": {
+        "ng": "ng",
+        "eslint": "eslint --cache --ext .js,.jsx,.ts,.tsx src",
+        "postinstall": "tslint --project ./src/tsconfig.app.json --fix",
+        "eslint-dump": "eslint --print-config ./.eslintrc.json",
+
+        "start-mock-server": "nodemon --ext js --watch ./mock/json ./mock/json/server.js",
+        "start-mock-serve": "eui-scripts serve-app --port 4200 --host=host.docker.internal --configuration=mock",
+        "start-mock-serve-docker": "eui-scripts serve-app --port 4200 --host=host.docker.internal --configuration=mockdocker",
+        "start-dev-cognito": "eui-scripts serve-app --port 4200 --host=localhost --configuration=devCognito",
+        "start-host-docker": "eui-scripts serve-app --port 4200 --host=host.docker.internal --configEnvTarget=dev",
+
+        "start-dev": "eui-scripts serve-app --configuration=development",
+        "start-serve": "eui-scripts serve-app --configuration=proxy-mock --configEnvTarget=mock",
+        "start": "npm-run-all --parallel start-mock-server start-serve",
+        "start-proxy": "eui-scripts serve-app --configuration=proxy --configEnvTarget=proxy",
+        "start-local": "eui-scripts serve-app --configEnvTarget=local",
+        "build": "eui-scripts build-app",
+        "build-dev": "eui-scripts build-app --configuration=development --configEnvTarget=dev",
+        "build-prod": "eui-scripts build-app --configuration=production-optimized",
+        "build-prod-skip-test": "eui-scripts build-app --configuration=production-optimized --skipTest --skipLint",
+        "build-prod-ci": "ncp tsconfig-ci.json tsconfig.json && npm run build-prod",
+        "build-prod-stats": "eui-scripts build-app --configuration=production-optimized  --statsJson",
+        "build-prod-openid-dev": "eui-scripts build-app --configuration=production-optimized  --openid --configEnvTarget=dev",
+        "build-prod-openid-tst": "eui-scripts build-app --configuration=production-optimized  --openid --configEnvTarget=tst",
+        "build-prod-openid-acc": "eui-scripts build-app --configuration=production-optimized  --openid --configEnvTarget=acc",
+        "build-prod-openid-prd": "eui-scripts build-app --configuration=production-optimized  --openid --configEnvTarget=prd",
+
+        "app:build": "eui-scripts build-app",
+        "app:inject-config": "eui-scripts inject-config-app",
+        "generate-changelog": "eui-scripts generate-changelog"
+    },
+    "private": true,
+    "dependencies": {
+        "@eui/deps-base": "13.1.4",
+        "@fortawesome/angular-fontawesome": "^0.10.2",
+        "@fortawesome/fontawesome-svg-core": "^6.1.1",
+        "@fortawesome/free-solid-svg-icons": "^6.1.1",
+        "angular-oauth2-oidc": "12.1.0"
+    },
+    "devDependencies": {
+        "@typescript-eslint/eslint-plugin": "^5.9.1",
+        "@typescript-eslint/parser": "^5.9.1",
+        "eslint": "^8.14.0",
+        "karma-junit-reporter": "^2.0.1",
+        "multer": "^1.4.4"
+    }
+}

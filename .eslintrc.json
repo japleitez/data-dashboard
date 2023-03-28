@@ -1,0 +1,41 @@
+{
+    // project setup
+    "env": {
+        // this is browser's project.
+        "browser": true,
+        // this is Node.JS project
+//        "node": true,
+        // ES6
+        "es6": true,
+        // ES2015 - the same as in the tsconfig.json ( can be ES2017, etc )
+        "es2015": true
+    },
+    // rules
+    "extends": [
+        // basic rule set eslint ( https://github.com/eslint/eslint/blob/master/conf/eslint-recommended.js )
+        "eslint:recommended",
+        // switchoff some rules ( https://github.com/typescript-eslint/typescript-eslint/blob/master/packages/eslint-plugin/src/configs/eslint-recommended.ts )
+        "plugin:@typescript-eslint/eslint-recommended",
+        // basic rule set  for TypeScript
+        "plugin:@typescript-eslint/recommended",
+        //  TS rules, requiring type checking
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    ],
+    // parser
+    "parser": "@typescript-eslint/parser",
+    "parserOptions": {
+        // set project TS for rules with types
+        "project": "tsconfig.json",
+        "tsconfigRootDir": "."
+    },
+    // plugin with rules for TypeScript
+    "plugins": ["@typescript-eslint"],
+    "rules": {
+        // manually disabled rules
+//        "prefer-const": "off",
+//        "no-empty-pattern": "off"
+        // manually added rule : only single quotes is allowed
+        "quotes": ["error", "single", { "avoidEscape": true }]
+    },
+    "ignorePatterns": ["src/**/*.html", "mock/*"]
+}

@@ -1,0 +1,35 @@
+# Ignore these checks
+# ignored:
+#   - DL3000
+#   - SC1010
+
+# Warn if image not from trusted registry
+trustedRegistries:
+  - registry.fpfis.eu
+  - docker.io
+  # Will remove docker.io when we crete project/pipeline to approve images
+
+# If you want to override the severity of specific rules
+# override:
+#   error:
+#     - DL3001
+#     - DL3002
+#   warning:
+#     - DL3042
+#     - DL3033
+#   info:
+#     - DL3032
+#   style:
+#     - DL3015
+
+# Label check
+strict-labels: true
+label-schema:
+  project: text
+  author: text
+  email: email
+  # created: rfc3339
+  documentation: url
+  # git-revision: hash
+  license: spdx
+  version: semver

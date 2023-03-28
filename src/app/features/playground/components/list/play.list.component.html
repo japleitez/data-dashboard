@@ -1,0 +1,112 @@
+<eui-page>
+
+    <eui-page-header label="Playground Filters" ></eui-page-header>
+
+    <eui-page-content>
+
+        <eui-tabs>
+            <eui-tab>
+                <euiTabLabel>
+                    URL Filters <br> {{urlFiltersLength}} filters
+                </euiTabLabel>
+                <euiTabContent>
+                    <ux-panel label="URL Filters list" [hasNoContentPadding]="true" badgeLabel="{{urlFiltersLength}}" labelInfos="result(s) found">
+
+                        <table euiTable euiTableResponsive asyncTable [loading]="loadingUrl" [rows]="urlFilters"  >
+                            <ng-template euiTemplate="header">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template let-filter euiTemplate="body">
+                                <tr>
+                                    <td>{{ filter.name.default }}</td>
+                                    <td>
+                                        <button euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiPrimary (click)="onUrlTest(filter)" [attr.id]="'button_url_test_' + filter.id" euiTooltipInfo euiTooltip="Test URL Filter"><span class="eui-icon eui-icon-caret-right" ></span></button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </table>
+
+                        <eui-table-paginator  [page]="pageUrl" [pageSize]="pageUrlSize" [pageSizeOptions]="pageUrlSizeOptions" [length]="urlFiltersLength" (pageChange)="pageUrlChange($event)"></eui-table-paginator>
+
+                    </ux-panel>
+                </euiTabContent>
+            </eui-tab>
+
+            <eui-tab>
+                <euiTabLabel>
+                    PARSE Filters <br> {{parseFiltersLength}} filters
+                </euiTabLabel>
+                <euiTabContent>
+                    <ux-panel label="PARSE Filters list" [hasNoContentPadding]="true" badgeLabel="{{parseFiltersLength}}" labelInfos="result(s) found">
+
+                        <table euiTable euiTableResponsive asyncTable [loading]="loadingParse" [rows]="parseFilters" >
+                            <ng-template euiTemplate="header">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template let-filter euiTemplate="body">
+                                <tr>
+                                    <td>{{ filter.name.default }}</td>
+                                    <td>
+                                        <button euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiPrimary (click)="onParseTest(filter)" [attr.id]="'button_parse_test_' + filter.id" euiTooltipInfo euiTooltip="Test PARSE Filter"><span class="eui-icon eui-icon-caret-right" ></span></button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </table>
+
+                        <eui-table-paginator  [page]="pageParse" [pageSize]="pageParseSize" [pageSizeOptions]="pageParseSizeOptions" [length]="parseFiltersLength" (pageChange)="pageParseChange($event)"></eui-table-paginator>
+
+                    </ux-panel>
+                </euiTabContent>
+            </eui-tab>
+
+            <eui-tab>
+                <euiTabLabel>
+                    Navigation Filters <br> {{navigationFiltersLength}} filters
+                </euiTabLabel>
+                <euiTabContent>
+                    <ux-panel label="Navigation Filters list" [hasNoContentPadding]="true" badgeLabel="{{navigationFiltersLength}}" labelInfos="result(s) found">
+
+                        <table euiTable euiTableResponsive asyncTable [loading]="loadingNavigation" [rows]="navigationFilters" >
+                            <ng-template euiTemplate="header">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </ng-template>
+                            <ng-template let-filter euiTemplate="body">
+                                <tr>
+                                    <td>{{ filter.name.default }}</td>
+                                    <td>
+                                        <button euiButton euiRounded euiIconButton euiSizeM euiBasicButton euiPrimary
+                                                (click)="onNavigationTest(filter)"
+                                                [attr.id]="'button_navigation_test_' + filter.id"
+                                                euiTooltipInfo euiTooltip="Test NAVIGATION Filter">
+                                            <span class="eui-icon eui-icon-caret-right"></span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </ng-template>
+                        </table>
+
+                        <eui-table-paginator
+                            [page]="pageNavigation"
+                            [pageSize]="pageNavigationSize"
+                            [pageSizeOptions]="pageNavigationSizeOptions"
+                            [length]="navigationFiltersLength"
+                            (pageChange)="pageNavigationChange($event)">
+                        </eui-table-paginator>
+
+                    </ux-panel>
+                </euiTabContent>
+            </eui-tab>
+
+        </eui-tabs>
+    </eui-page-content>
+
+</eui-page>

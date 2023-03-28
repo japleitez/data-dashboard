@@ -1,0 +1,71 @@
+<eui-page>
+    <eui-page-header label="Sources" subLabel="Import New Sources"></eui-page-header>
+
+    <eui-page-content>
+
+        <p>In the event of uploading a invalid file a notification error is displayed.</p>
+
+        <p>Only valid sources are created in database.
+            Invalid sources are not created and an Error Report is displayed with the invalid sources and errors.</p>
+
+        <form [formGroup]="form" enctype="multipart/form-data">
+            <eui-file-upload formControlName="fileToUpload" [progress]="progress" [accept]="'*.json'"
+                             [isMultiple]="false" [hasPreview]="false" hasDragArea></eui-file-upload>
+            <ux-control-feedback typeClass="danger" *ngIf="form.dirty && form.get('fileToUpload').invalid">
+                Please select one file containing a valid JSON and not bigger than 15MB
+            </ux-control-feedback>
+        </form>
+
+        <eui-alert *ngIf="isInvalidFile" euiDanger>Cannot import file, the file contains an invalid JSON or it exceeds the size limit of 15MB</eui-alert>
+
+        <eui-card euiCollapsible euiCollapsed id="error_report_json" *ngIf="isErrorReportVisible">
+            <eui-card-header hasHeaderClickToggle="true">
+                <eui-card-header-title>
+                    <a euiLabel>JSON Error Report</a>
+                </eui-card-header-title>
+                <eui-card-header-subtitle>
+                    <span euiLabel>click to see json...</span>
+                </eui-card-header-subtitle>
+            </eui-card-header>
+            <eui-card-content>
+                <textarea euiTextArea id="rejected" name="rejected" rows="15" cols="33">{{ rejected }}</textarea>
+            </eui-card-content>
+        </eui-card>
+
+        <eui-card euiNoContentPadding id="error_report_table" id="error_report_list" *ngIf="isErrorReportVisible">
+            <eui-card-header>
+                <eui-card-header-title>Error report has <eui-badge euiPrimary>{{ errorList.length }}</eui-badge> sources with errors</eui-card-header-title>
+            </eui-card-header>
+            <eui-card-content>
+                <div class="eui-table__scrollable-wrapper">
+                    <table euiTable euiTableResponsive [rows]="errorList" [paginator]="paginator">
+                        <ng-template euiTemplate="header">
+                            <tr>
+                                <th>Name</th>
+                                <th>Url</th>
+                                <th>Errors</th>
+                            </tr>
+                        </ng-template>
+                        <ng-template let-source euiTemplate="body">
+                            <tr>
+                                <td data-col-label="Name">{{ source.name }}</td>
+                                <td data-col-label="Url">{{ source.url }}</td>
+                                <td data-col-label="Errors">{{ source.errors }}</td>
+                            </tr>
+                        </ng-template>
+                    </table>
+                </div>
+                <eui-table-paginator #paginator></eui-table-paginator>
+            </eui-card-content>
+        </eui-card>
+
+    </eui-page-content>
+
+    <eui-page-footer>
+        <div class="footer-action-bar">
+            <button class="eui-u-mr-s" id="cancel_btn" euiButton euiSecondary (click)="onCancel($event)">Cancel</button>
+            <button class="eui-u-mr-s" id="import_btn" euiButton euiPrimary (click)="onUpload($event)" [euiDisabled]="isImportDisabled()">Import</button>
+        </div>
+    </eui-page-footer>
+
+</eui-page>
